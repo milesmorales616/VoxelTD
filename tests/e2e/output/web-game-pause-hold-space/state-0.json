@@ -1,0 +1,1 @@
+{"coordinate_system":"origin=(0,0) top-left; +x right; +y down; units=pixels on canvas","mode":"playing","paused":true,"wave":{"current":1,"total":5,"spawning":false,"pending_spawns":0},"economy":{"credits":130,"tower_cost":50,"score":0},"base_health":24,"towers":[],"enemies":[],"projectiles":0,"hovered_cell":null}
