@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voxel Tower Defense</title>
+    <style>
+      :root {
+        --bg-1: #ebf4ff;
+        --bg-2: #bfd5f6;
+        --panel: #1a2f52ee;
+        --text: #f0f6ff;
+        --accent: #f9c861;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at 10% 10%, #ffffff 0%, var(--bg-1) 30%, var(--bg-2) 100%);
+      }
+
+      .shell {
+        width: min(96vw, 1120px);
+      }
+
+      #game-root {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+        border: 3px solid #324f7f;
+        box-shadow: 0 22px 44px #1b2f4f55;
+        display: block;
+        position: relative;
+        z-index: 1;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(160deg, #123061ee, #1b3c6be6);
+        text-align: center;
+        border-radius: 12px;
+        padding: clamp(1rem, 3vw, 2rem);
+        z-index: 3;
+      }
+
+      .overlay.hidden {
+        display: none;
+      }
+
+      .panel {
+        background: var(--panel);
+        padding: clamp(1.1rem, 2vw, 1.7rem);
+        border: 2px solid #6d8cc5;
+        border-radius: 12px;
+        max-width: 34rem;
+      }
+
+      h1 {
+        margin: 0 0 0.8rem;
+        font-size: clamp(1.2rem, 3.4vw, 2.2rem);
+        letter-spacing: 0.06em;
+        color: #ffeaba;
+      }
+
+      p {
+        margin: 0.4rem 0;
+        line-height: 1.35;
+      }
+
+      .start-btn {
+        margin-top: 1rem;
+        border: none;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffd97a, #f0b648);
+        color: #2a220f;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.72rem 1.4rem;
+        cursor: pointer;
+      }
+
+      .secondary-btn {
+        margin-top: 0.6rem;
+        margin-left: 0.45rem;
+        border: 1.4px solid #8cb2e9;
+        border-radius: 999px;
+        background: #224879;
+        color: #eaf2ff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 0.64rem 1.2rem;
+        cursor: pointer;
+      }
+
+      .map-options {
+        margin: 0.7rem 0 0.9rem;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+      }
+
+      .map-option {
+        border: 1.6px solid #5f7faf;
+        border-radius: 10px;
+        background: #193560;
+        color: #e4efff;
+        padding: 0.56rem 0.6rem;
+        font-size: 0.93rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .map-option.active {
+        border-color: #f8df90;
+        background: #2e5589;
+        color: #fff5cf;
+      }
+
+      .map-mode-copy {
+        margin: 0.4rem 0 0.7rem;
+        font-size: 0.9rem;
+        color: #c9dbfa;
+      }
+
+      .encyclopedia-panel {
+        width: min(92vw, 980px);
+        max-height: min(86vh, 740px);
+        overflow: auto;
+      }
+
+      .encyclopedia-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-bottom: 0.65rem;
+      }
+
+      .encyclopedia-close {
+        border: 1.6px solid #8fb2df;
+        border-radius: 8px;
+        background: #284f80;
+        color: #eaf2ff;
+        font-size: 0.95rem;
+        font-weight: 700;
+        padding: 0.4rem 0.75rem;
+        cursor: pointer;
+      }
+
+      .encyclopedia-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .encyclopedia-tab {
+        border: 1.5px solid #5f7faf;
+        border-radius: 9px;
+        background: #193560;
+        color: #deedff;
+        padding: 0.55rem 0.6rem;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .encyclopedia-tab.active {
+        border-color: #f8df90;
+        background: #2e5589;
+        color: #fff5cf;
+      }
+
+      .encyclopedia-list {
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .encyclopedia-card {
+        border: 1.2px solid #5f7fab;
+        border-radius: 10px;
+        background: #18375f;
+        padding: 0.62rem 0.72rem;
+        text-align: left;
+      }
+
+      .encyclopedia-card h3 {
+        margin: 0;
+        color: #ffe7b5;
+        font-size: 1.05rem;
+      }
+
+      .encyclopedia-subtitle {
+        margin-top: 0.2rem;
+        color: #c6dcff;
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+
+      .encyclopedia-lines {
+        margin-top: 0.5rem;
+        display: grid;
+        gap: 0.25rem;
+      }
+
+      .encyclopedia-lines p {
+        margin: 0;
+        font-size: 0.86rem;
+        line-height: 1.28;
+        color: #e4efff;
+      }
+
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section id="game-root">
+        <canvas id="game-canvas" width="1120" height="840"></canvas>
+        <section id="menu-overlay" class="overlay">
+          <div class="panel">
+            <h1>Voxel Tower Defense</h1>
+            <div id="map-options" class="map-options">
+              <button class="map-option active" type="button" data-map-mode="empty">Empty Map</button>
+              <button class="map-option" type="button" data-map-mode="random">Random Map</button>
+            </div>
+            <p id="map-mode-copy" class="map-mode-copy">Empty field mode: enemies route around your towers, so you can build mazes.</p>
+            <p>Build towers on grass. Enemies march along the road to your base.</p>
+            <p>Use the bottom tower bar, keys <strong>1-8</strong>, or <strong>A/B</strong> to pick towers, then click grass.</p>
+            <p>Press <strong>P</strong> or <strong>Space</strong> to pause, <strong>F</strong> for fullscreen.</p>
+            <button id="start-btn" class="start-btn" type="button" onclick="window.startSettlement && window.startSettlement()">Start Settlement</button>
+            <button id="open-encyclopedia-btn" class="secondary-btn" type="button">Encyclopedia</button>
+          </div>
+        </section>
+        <section id="end-overlay" class="overlay hidden">
+          <div class="panel">
+            <h1 id="end-title">Settlement Lost</h1>
+            <p id="end-copy">Enemies broke through the roadblock.</p>
+            <button id="restart-btn" class="start-btn" type="button" onclick="window.restartSettlement && window.restartSettlement()">Restart Run</button>
+          </div>
+        </section>
+        <section id="encyclopedia-overlay" class="overlay hidden">
+          <div class="panel encyclopedia-panel">
+            <div class="encyclopedia-head">
+              <h1 id="encyclopedia-title">Encyclopedia</h1>
+              <button id="close-encyclopedia-btn" class="encyclopedia-close" type="button">Close</button>
+            </div>
+            <div class="encyclopedia-tabs">
+              <button class="encyclopedia-tab active" type="button" data-encyclopedia-tab="towers">Towers</button>
+              <button class="encyclopedia-tab" type="button" data-encyclopedia-tab="enemies">Enemies</button>
+            </div>
+            <div id="encyclopedia-list" class="encyclopedia-list"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="./src/main.js"></script>
+  </body>
+</html>
